@@ -1,12 +1,14 @@
 FROM alpine:3.2
 
-EXPOSE 80 443
+EXPOSE 80
 
-RUN apk add --update nginx-lua && \
+RUN apk add --update nginx-lua \
+        lua5.1-cjson && \
+    mkdir -p /tmp/nginx/client-body && \
 	rm -rf /var/cache/apk/*
 
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", "/etc/nginx/conf.d"]
 
-CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
+CMD ["/usr/sbin/nginx", "-g", "daemon off;", "-p", "/app"]
