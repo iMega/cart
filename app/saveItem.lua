@@ -73,9 +73,8 @@ if not res then
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-local returnHttpCode = ngx.HTTP_OK
-if res == 0 then
-    returnHttpCode = ngx.HTTP_CREATED
+if res == 1 then
+    ngx.exit(ngx.HTTP_CONFLICT)
 end
 
 local ok, err = db:set(validData["cart_uuid"] .. ":" .. validData["product_id"], jsonData)
@@ -85,4 +84,4 @@ if not ok then
 end
 
 ngx.header.location = "/" .. validData["cart_uuid"] .. "/" .. validData["product_id"]
-ngx.exit(returnHttpCode)
+ngx.exit(ngx.HTTP_CREATED)
