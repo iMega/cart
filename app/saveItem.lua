@@ -41,9 +41,6 @@ if not isValid then
     ngx.exit(ngx.HTTP_BAD_REQUEST)
 end
 
---local str = "550e8400-e29b-41d4-a716-446655440000"
---string.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", string.byte(str,1,16))
-
 local validData = values("valid")
 
 local jsonError, jsonData = pcall(json.encode, validData)
