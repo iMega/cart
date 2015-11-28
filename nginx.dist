@@ -6,6 +6,7 @@ events {
 }
 
 http {
+    resolver 127.0.0.1;
     include mime.types;
     include /etc/nginx/sites-enabled/*.conf;
     include /etc/nginx/conf.d/*.conf;
