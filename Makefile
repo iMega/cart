@@ -16,8 +16,8 @@ ifeq ($(shell until [ "`docker inspect -f {{.State.Running}} dns`" == "true" ]; 
 	$(eval RESOLVER = $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' dns))
 endif
 
-	cp $(CURDIR)/nginx.dist $(CURDIR)/nginx.conf
-	sed -i '' -e 's/resolver 127.0.0.1;/resolver $(RESOLVER);/g' $(CURDIR)/nginx.conf
+	@cp $(CURDIR)/nginx.dist $(CURDIR)/nginx.conf
+	@sed -i '' -e 's/resolver 127.0.0.1;/resolver $(RESOLVER);/g' $(CURDIR)/nginx.conf
 
 	@docker run -d --name cart \
 		--link cart_db:cart_db \
