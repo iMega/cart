@@ -3,3 +3,5 @@
 .gitignore
 Makefile
 README.txt
+nginx.dist
+nginx.conf

@@ -3,16 +3,16 @@ local json = require "cjson"
 ngx.say(json.encode({ 1, 2, 'fred', {first='mars',second='venus',third='earth'} }))
 
 
-local redis = require "redis"
+local redis = require "resty.redis"
 local red = redis:new()
 
 red:set_timeout(1000)
 
-local ok, err = red:connect("172.17.0.20", 6379)
+local ok, err = red:connect("cart_db", 6379)
+
 if not ok then
-    ngx.say("failed to connect: ", err)
-    return
-end
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end  
 
 ok, err = red:set("dog", "an animal")
 if not ok then
