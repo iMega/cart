@@ -15,17 +15,25 @@
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 local json = require "cjson"
+require "resty.validation.ngx"
 local validation = require "resty.validation"
 
-local function empty(value)
-    return value == nil or value == ''
+ngx.req.read_body()
+local body = ngx.req.get_body_data()
+
+local jsonErrorParse, data = pcall(json.decode, body)
+if not jsonErrorParse then
+    ngx.exit(ngx.HTTP_BAD_REQUEST)
 end
 
-local data = ngx.req.get_uri_args()
-
 local validatorItem = validation.new{
-    offset = validation.optional.string.tonumber.positive,
-    limit  = validation.optional.string.tonumber.positive,
+    cart_uuid  = validation.string.trim:len(36,36),
+    preview    = validation.string.trim,
+    price      = validation.number.positive,
+    product_id = validation.string.trim:maxlen(36),
+    quantity   = validation.number.positive,
+    title      = validation.string.trim,
+    url        = validation.string.trim
 }
 
 local isValid, values = validatorItem(data)
@@ -35,15 +43,9 @@ end
 
 local validData = values("valid")
 
-local offset = 0
-local limit  = 10
-
-if not empty(validData["offset"]) then
-    offset = validData["offset"]
-end
-
-if not empty(validData["limit"]) then
-    limit = validData["limit"]
+local jsonError, jsonData = pcall(json.encode, validData)
+if not jsonError then
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
 local redis = require "resty.redis"
@@ -56,22 +58,27 @@ if not ok then
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-local res, err = db:exists(ngx.var.cart_uuid)
-if not res then
+local ok, err = db:lpush(validData["cart_uuid"], validData["product_id"])
+if not ok then
     ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
-end
-
-local res, err = db:sort(ngx.var.cart_uuid, "by", "nosort", "limit", offset, limit, "get", ngx.var.cart_uuid .. ":*")
-if not res then
-    ngx.say("sort:" .. err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
-end
-
-local jsonError, jsonData = pcall(json.encode, res)
-if not jsonError then
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-ngx.say(jsonData)
-ngx.exit(ngx.HTTP_OK)
+local res, err = db:exists(validData["cart_uuid"] .. ":" .. validData["product_id"])
+if not res then
+    ngx.say(err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+if res == 1 then
+    ngx.exit(ngx.HTTP_CONFLICT)
+end
+
+local ok, err = db:set(validData["cart_uuid"] .. ":" .. validData["product_id"], jsonData)
+if not ok then
+    ngx.say(err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+ngx.header.location = "/" .. validData["cart_uuid"] .. "/" .. validData["product_id"]
+ngx.exit(ngx.HTTP_CREATED)
