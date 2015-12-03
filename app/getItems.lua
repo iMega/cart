@@ -64,7 +64,7 @@ end
 
 local res, err = db:sort(ngx.var.cart_uuid, "by", "nosort", "limit", offset, limit, "get", ngx.var.cart_uuid .. ":*")
 if not res then
-    ngx.say("sort:" .. err)
+    ngx.say(err)
     ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
