@@ -1,6 +1,8 @@
 IMAGE = imega/cart
 CONTAINERS = dns cart cart_db
 PORT = -p 80:80
+RUNNING = $(shell until [ "`docker inspect -f {{.State.Running}} dns`" == "true" ]; do sleep 0.1; done; echo true;)
+
 
 build:
 	docker build -f nginx.docker -t $(IMAGE) .
@@ -12,7 +14,7 @@ prestart:
 		andyshinn/dnsmasq
 
 start: prestart
-ifeq ($(shell until [ "`docker inspect -f {{.State.Running}} dns`" == "true" ]; do sleep 0.1; done; echo true;),true)
+ifeq ($(RUNNING),true)
 	$(eval RESOLVER = $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' dns))
 endif
 

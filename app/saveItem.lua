@@ -67,7 +67,7 @@ end
 local res, err = db:exists(validData["cart_uuid"] .. ":" .. validData["product_id"])
 if not res then
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
 if res == 1 then

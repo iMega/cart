@@ -28,12 +28,7 @@ end
 
 local validatorItem = validation.new{
     cart_uuid  = validation.string.trim:len(36,36),
-    preview    = validation.string.trim,
-    price      = validation.number.positive,
-    product_id = validation.string.trim:maxlen(36),
-    quantity   = validation.number.positive,
-    title      = validation.string.trim,
-    url        = validation.string.trim
+    product_id = validation.optional.string.trim:maxlen(36)
 }
 
 local isValid, values = validatorItem(data)
@@ -64,7 +59,7 @@ if not res then
     ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
-local ok, err = db:set(validData["cart_uuid"] .. ":" .. validData["product_id"], jsonData)
+local ok, err = db:del(validData["cart_uuid"] .. ":" .. validData["product_id"])
 if not ok then
     ngx.say(err)
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
