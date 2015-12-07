@@ -20,7 +20,7 @@ local redis = require "resty.redis"
 local db = redis:new()
 db:set_timeout(1000)
 
-local ok, err = db:connect("cart_db", 6379)
+local ok, err = db:connect(ngx.var.redis_ip, ngx.var.redis_port)
 if not ok then
     ngx.say(err)
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
