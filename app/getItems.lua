@@ -65,13 +65,12 @@ end
 local res, err = db:sort(ngx.var.cart_uuid, "by", "nosort", "limit", offset, limit, "get", ngx.var.cart_uuid .. ":*")
 if not res then
     ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
-end
-
-local jsonError, jsonData = pcall(json.encode, res)
-if not jsonError then
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-ngx.say(jsonData)
+if 0 == table.getn(res) then
+    ngx.exit(ngx.HTTP_NOT_FOUND)
+end
+
+ngx.say("[" .. table.concat(res, ",") .. "]")
 ngx.exit(ngx.HTTP_OK)
