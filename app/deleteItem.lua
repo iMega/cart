@@ -18,17 +18,14 @@ local json = require "cjson"
 require "resty.validation.ngx"
 local validation = require "resty.validation"
 
-ngx.req.read_body()
-local body = ngx.req.get_body_data()
-
-local jsonErrorParse, data = pcall(json.decode, body)
-if not jsonErrorParse then
-    ngx.exit(ngx.HTTP_BAD_REQUEST)
-end
-
 local validatorItem = validation.new{
     cart_uuid  = validation.string.trim:len(36,36),
-    product_id = validation.optional.string.trim:maxlen(36)
+    product_id = validation.string.trim:maxlen(36)
+}
+
+local data = {
+    cart_uuid: ngx.var.cart_uuid,
+    product_id: ngx.var.product_id
 }
 
 local isValid, values = validatorItem(data)

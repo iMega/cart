@@ -68,10 +68,9 @@ if not res then
     ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
-local jsonError, jsonData = pcall(json.encode, res)
-if not jsonError then
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+if 0 == table.getn(res) then
+    ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
-ngx.say(jsonData)
+ngx.say("[" .. table.concat(res, ",") .. "]")
 ngx.exit(ngx.HTTP_OK)
