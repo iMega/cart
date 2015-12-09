@@ -58,12 +58,6 @@ if not ok then
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
-local ok, err = db:lpush(validData["cart_uuid"], validData["product_id"])
-if not ok then
-    ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
-end
-
 local res, err = db:exists(validData["cart_uuid"] .. ":" .. validData["product_id"])
 if not res then
     ngx.say(err)
@@ -72,6 +66,12 @@ end
 
 if res == 1 then
     ngx.exit(ngx.HTTP_CONFLICT)
+end
+
+local ok, err = db:lpush(validData["cart_uuid"], validData["product_id"])
+if not ok then
+    ngx.say(err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
 local ok, err = db:set(validData["cart_uuid"] .. ":" .. validData["product_id"], jsonData)

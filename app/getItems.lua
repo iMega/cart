@@ -65,7 +65,7 @@ end
 local res, err = db:sort(ngx.var.cart_uuid, "by", "nosort", "limit", offset, limit, "get", ngx.var.cart_uuid .. ":*")
 if not res then
     ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
 if 0 == table.getn(res) then
