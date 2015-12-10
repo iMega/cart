@@ -72,5 +72,11 @@ if 0 == table.getn(res) then
     ngx.exit(ngx.HTTP_NOT_FOUND)
 end
 
-ngx.say("[" .. table.concat(res, ",") .. "]")
+local status, data = pcall(table.concat, res, ",")
+if not status then
+    ngx.say(data)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+ngx.say("[" .. data .. "]")
 ngx.exit(ngx.HTTP_OK)

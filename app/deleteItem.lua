@@ -24,8 +24,8 @@ local validatorItem = validation.new{
 }
 
 local data = {
-    cart_uuid: ngx.var.cart_uuid,
-    product_id: ngx.var.product_id
+    cart_uuid  = ngx.var.cart_uuid,
+    product_id = ngx.var.product_uuid
 }
 
 local isValid, values = validatorItem(data)
@@ -54,6 +54,12 @@ local res, err = db:exists(validData["cart_uuid"] .. ":" .. validData["product_i
 if not res then
     ngx.say(err)
     ngx.exit(ngx.HTTP_NOT_FOUND)
+end
+
+local ok, err = db:lrem(validData["cart_uuid"], -1, validData["product_id"])
+if not ok then
+    ngx.say(err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
 local ok, err = db:del(validData["cart_uuid"] .. ":" .. validData["product_id"])
