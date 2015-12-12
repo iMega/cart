@@ -1,28 +1,22 @@
 IMAGE = imega/cart
-CONTAINERS = dns cart cart_db
+CONTAINERS = imega_cart imega_cart_db
 PORT = -p 80:80
-RUNNING = $(shell until [ "`docker inspect -f {{.State.Running}} dns`" == "true" ]; do sleep 0.1; done; echo true;)
-
 
 build:
-	docker build -f nginx.docker -t $(IMAGE) .
+	@docker build -f nginx.docker -t $(IMAGE) .
 
 prestart:
-	@docker run -d --name cart_db -p 6379:6379 leanlabs/redis
-	@docker run -d --name dns --cap-add=NET_ADMIN \
-		--link cart_db:cart_db \
-		andyshinn/dnsmasq
+	@docker run -d --name imega_cart_db leanlabs/redis
 
 start: prestart
-ifeq ($(RUNNING),true)
-	$(eval RESOLVER = $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' dns))
-endif
+	@while [ "`docker inspect -f {{.State.Running}} imega_cart_db`" != "true" ]; do \
+		@echo "wait db"; sleep 0.3; \
+	done
+	$(eval IP_DB = $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' imega_cart_db))
+	@cp $(CURDIR)/sites-enabled/cart.dist $(CURDIR)/sites-enabled/cart.conf
+	@sed -i '' -e "s/set \$$redis_ip 127.0.0.1;/set \$$redis_ip $(IP_DB);/g" $(CURDIR)/sites-enabled/cart.conf
 
-	@cp $(CURDIR)/nginx.dist $(CURDIR)/nginx.conf
-	@sed -i '' -e 's/resolver 127.0.0.1;/resolver $(RESOLVER);/g' $(CURDIR)/nginx.conf
-
-	@docker run -d --name cart \
-		--link cart_db:cart_db \
+	@docker run -d --name imega_cart \
 		-v $(CURDIR)/sites-enabled:/etc/nginx/sites-enabled \
 		-v $(CURDIR)/app:/app \
 		-v $(CURDIR)/vendor:/vendor \
