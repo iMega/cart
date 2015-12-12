@@ -14,7 +14,7 @@ start: prestart
 	done
 	$(eval IP_DB = $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' imega_cart_db))
 	@cp $(CURDIR)/sites-enabled/cart.dist $(CURDIR)/sites-enabled/cart.conf
-	@sed -i '' -e "s/set \$$redis_ip 127.0.0.1;/set \$$redis_ip $(IP_DB);/g" $(CURDIR)/sites-enabled/cart.conf
+	@sed -i'' -e "s/set \$$redis_ip 127.0.0.1;/set \$$redis_ip $(IP_DB);/g" $(CURDIR)/sites-enabled/cart.conf
 
 	@docker run -d --name imega_cart \
 		-v $(CURDIR)/sites-enabled:/etc/nginx/sites-enabled \
