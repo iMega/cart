@@ -3,5 +3,4 @@
 .gitignore
 Makefile
 README.md
-nginx.conf
 Dockerfile
