@@ -10,4 +10,4 @@ RUN echo "@stale http://dl-4.alpinelinux.org/alpine/v3.3/main" >> /etc/apk/repos
 
 COPY . /
 
-CMD ["/usr/sbin/nginx", "-g", "daemon off;", "-p", "/app"]
+CMD ["/usr/sbin/nginx", "-g", "daemon off;", "-p", "/app", "-c", "/nginx.conf"]
