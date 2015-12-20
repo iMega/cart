@@ -2,6 +2,6 @@
 .dockerignore
 .gitignore
 Makefile
-README.txt
-nginx.dist
+README.md
 nginx.conf
+Dockerfile
