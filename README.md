@@ -1,18 +1,18 @@
-# cart
-REST API Shopping cart. Logic Shopcart for any platform.
+# REST API Shopping cart
+Logic Shopcart for any platform.
 
-## Faster
+### Faster
 You will use very fastest technologies. This is docker image to run the nginx.
 
-## Fool-proof
+### Fool-proof
 [![](https://badge.imagelayers.io/imega/cart:latest.svg)](https://imagelayers.io/?images=imega/cart:latest 'Get your own badge on imagelayers.io')
 
 From image: alpine:3.2
 
-## Low-priced
+### Low-priced
 Amazing software for the low price of FREE!
 
-## How to use
+### How to use
 ```
 $ docker pull imega/cart
 $ docker run -d --env REDIS_IP={YOUR_REDIS} --env REDIS_PORT=6379 -p 80:8085 imega/cart
