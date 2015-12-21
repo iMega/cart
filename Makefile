@@ -2,6 +2,7 @@ IMAGE = imega/cart
 CONTAINERS = imega_cart imega_cart_db
 PORT = -p 80:80
 REDIS_PORT = 6379
+TEST_URL = shopcart.imega.ru:80
 
 build:
 	@docker build -t $(IMAGE) .
@@ -29,3 +30,6 @@ clean: stop
 
 destroy: clean
 	@docker rmi -f $(IMAGE)
+
+test:
+	@tests/index.sh $(TEST_URL)

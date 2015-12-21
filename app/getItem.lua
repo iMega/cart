@@ -22,15 +22,18 @@ db:set_timeout(1000)
 
 local ok, err = db:connect(ngx.var.redis_ip, ngx.var.redis_port)
 if not ok then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
 local res, err = db:get(ngx.var.cart_uuid .. ":" .. ngx.var.product_uuid)
 if not res then
+    ngx.status = ngx.HTTP_NOT_FOUND
     ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
+    ngx.exit(ngx.status)
 end
 
+ngx.status = ngx.HTTP_OK
 ngx.say(res)
-ngx.exit(ngx.HTTP_OK)
+ngx.exit(ngx.status)

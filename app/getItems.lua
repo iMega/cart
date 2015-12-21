@@ -30,7 +30,8 @@ local validatorItem = validation.new{
 
 local isValid, values = validatorItem(data)
 if not isValid then
-    ngx.exit(ngx.HTTP_BAD_REQUEST)
+    ngx.status = ngx.HTTP_BAD_REQUEST
+    ngx.exit(ngx.status)
 end
 
 local validData = values("valid")
@@ -52,31 +53,37 @@ db:set_timeout(1000)
 
 local ok, err = db:connect(ngx.var.redis_ip, ngx.var.redis_port)
 if not ok then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
 local res, err = db:exists(ngx.var.cart_uuid)
 if not res then
+    ngx.status = ngx.HTTP_NOT_FOUND
     ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
+    ngx.exit(ngx.status)
 end
 
 local res, err = db:sort(ngx.var.cart_uuid, "by", "nosort", "limit", offset, limit, "get", ngx.var.cart_uuid .. ":*")
 if not res then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
 if 0 == table.getn(res) then
-    ngx.exit(ngx.HTTP_NOT_FOUND)
+    ngx.status = ngx.HTTP_NOT_FOUND
+    ngx.exit(ngx.status)
 end
 
 local status, data = pcall(table.concat, res, ",")
 if not status then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(data)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
+ngx.status = ngx.HTTP_OK
 ngx.say("[" .. data .. "]")
-ngx.exit(ngx.HTTP_OK)
+ngx.exit(ngx.status)

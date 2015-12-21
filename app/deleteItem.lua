@@ -30,15 +30,11 @@ local data = {
 
 local isValid, values = validatorItem(data)
 if not isValid then
-    ngx.exit(ngx.HTTP_BAD_REQUEST)
+    ngx.status = ngx.HTTP_BAD_REQUEST
+    ngx.exit(ngx.status)
 end
 
 local validData = values("valid")
-
-local jsonError, jsonData = pcall(json.encode, validData)
-if not jsonError then
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
-end
 
 local redis = require "resty.redis"
 local db = redis:new()
@@ -46,26 +42,30 @@ db:set_timeout(1000)
 
 local ok, err = db:connect(ngx.var.redis_ip, ngx.var.redis_port)
 if not ok then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
 local res, err = db:exists(validData["cart_uuid"] .. ":" .. validData["product_id"])
-if not res then
-    ngx.say(err)
-    ngx.exit(ngx.HTTP_NOT_FOUND)
+if 0 == res then
+    ngx.status = ngx.HTTP_NOT_FOUND
+    ngx.exit(ngx.status)
 end
 
 local ok, err = db:lrem(validData["cart_uuid"], -1, validData["product_id"])
 if not ok then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
 local ok, err = db:del(validData["cart_uuid"] .. ":" .. validData["product_id"])
 if not ok then
+    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     ngx.say(err)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    ngx.exit(ngx.status)
 end
 
-ngx.exit(ngx.HTTP_OK)
+ngx.status = ngx.HTTP_OK
+ngx.exit(ngx.status)
