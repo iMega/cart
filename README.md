@@ -1,6 +1,8 @@
 # REST API Shopping cart
 Logic Shopcart for any platform.
 
+[![Build Status](https://semaphoreci.com/api/v1/projects/3e6e6859-8f82-4bc8-b174-a9df3fbfdbc3/640885/badge.svg)](https://semaphoreci.com/irvis/cart)
+
 ### Faster
 You will use very fastest technologies. This is docker image to run the nginx.
 
